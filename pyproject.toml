@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dm"
+version = "0.0.1"
+authors = [
+  { name="Yuanchun Shen", email="shenyuanchun@baidu.com" },
+]
+description = "A collection of tools for data m_____s"
+readme = "README.md"
+requires-python = ">=3.5"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dm"]
+
+[project.urls]
+Homepage = "https://console.cloud.baidu-int.com/devops/icode/repos/shenyuanchun/dm"
+
+[project.scripts]
+dm = "dm.entrypoint:cli"
