@@ -43,7 +43,8 @@ def merge_fields(paths, src_keys, merge_fn, result_key='result'):
     results = []
     sources = [read_jsonl(path) for path in paths]
     for a, b in pairwise(sources):
-        assert len(a) == len(b), "Lengths of jsonl files are not the same"
+        if len(a) != len(b):
+            raise ValueError(f"Lengths of jsonl files are not the same ({len(a)} != {len(b)})")
     length = len(sources[0])
     for i in range(length):
         source_fields = [src[i][src_key]
@@ -62,7 +63,7 @@ def update_fields(base_path, update_path, keys_to_update):
     base_jsonls = read_jsonl(base_path)
     update_jsonls = read_jsonl(update_path)
     if len(base_jsonls) != len(update_jsonls):
-        raise ValueError("Lengths of jsonl files are not the same")
+        raise ValueError(f"Lengths of jsonl files are not the same ({len(base_jsonls) != len(update_jsonls)})")
     for base, update in zip(base_jsonls, update_jsonls):
         for key in keys_to_update:
             base[key] = update[key]

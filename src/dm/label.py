@@ -3,7 +3,7 @@ Write a simple label into each line of a jsonl file
 """
 import os
 
-from eb.utils.json_util import read_jsonl, write_jsonl
+from dm.utils.json_util import read_jsonl, write_jsonl
 
 from rich.console import Console
 from rich.markdown import Markdown
@@ -22,7 +22,7 @@ def label(args):
             console.print(k_md)
             console.print(v_md)
 
-        user_input = input("Label: ")
+        user_input = input("\nLabel: ")
         line[args.label] = user_input
         write_jsonl(args.output, [line], mode="a")
 

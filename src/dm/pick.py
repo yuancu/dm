@@ -1,7 +1,7 @@
 import os
 import argparse
 
-from eb.utils.json_util import read_jsonl, write_jsonl
+from dm.utils.json_util import read_jsonl, write_jsonl
 
 from rich.console import Console
 from rich.markdown import Markdown
@@ -16,8 +16,11 @@ def pick(args):
         os.system('clear')
         for k, v in line.items():
             k_md = Markdown(f"**{k.upper()}**")
-            v_md = Markdown(v)
             console.print(k_md)
+            if isinstance(v, str):
+                v_md = Markdown(v)
+            else:
+                v_md = v
             console.print(v_md)
 
         user_input = input("Keep this sample? ([y]/n)")
