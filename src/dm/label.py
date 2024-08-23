@@ -3,10 +3,10 @@ Write a simple label into each line of a jsonl file
 """
 import os
 
-from dm.utils.json_util import read_jsonl, write_jsonl
-
 from rich.console import Console
 from rich.markdown import Markdown
+
+from dm.utils.json_util import read_jsonl, write_jsonl
 
 
 def label(args):

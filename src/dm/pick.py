@@ -1,10 +1,10 @@
-import os
 import argparse
-
-from dm.utils.json_util import read_jsonl, write_jsonl
+import os
 
 from rich.console import Console
 from rich.markdown import Markdown
+
+from dm.utils.json_util import read_jsonl, write_jsonl
 
 
 def pick(args):
@@ -17,7 +17,7 @@ def pick(args):
         for k, v in line.items():
             k_md = Markdown(f"**{k.upper()}**")
             console.print(k_md)
-            if isinstance(v, str):
+            if isinstance(v, str) and not args.not_render:
                 v_md = Markdown(v)
             else:
                 v_md = v
@@ -38,6 +38,7 @@ def add_pick_arguments(parser):
     parser.add_argument("-o", "--output", type=str, required=False, default="output.jsonl",
                         help="The output jsonl file (default: output.jsonl)")
     parser.add_argument("--start-from", type=int, default=0)
+    parser.add_argument("--not-render", action="store_true", help="Do not render markdown")
 
 
 if __name__ == "__main__":
