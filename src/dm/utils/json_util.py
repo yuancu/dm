@@ -1,43 +1,75 @@
-import json
+"""
+This module provides utility functions for working with JSONL files.
+Module: json_util.py
+Author: Yuanchun Shen
+Functions:
+- read_jsonl(input_path): Reads a JSONL file and returns a list of dictionaries.
+- write_jsonl(output_path, data, mode="w"): Writes data to a JSONL file.
+- merge_fields(paths, src_keys, merge_fn, result_key=None): Merges a field from multiple
+    JSONL files.
+- update_fields(base_path, other_path, keys_to_update): Updates fields in a JSONL file
+    with values from another JSONL file.
+- update_fields_unordered(base_path, other_path, primary_key, keys_to_update): Updates
+    fields in a JSONL file with values from another JSONL file, using a primary key to
+    match records.
+- excel_to_jsonl(excel_path, output_path): Converts an Excel file to a JSONL file.
+"""
 from itertools import pairwise
+import json
+
+import pandas as pd
 
 
 def read_jsonl(input_path):
     """
-    读取 JSONL 格式的文件，返回一个列表，每个元素是一个字典。
+    Read a JSONL file and return a list of dictionaries.
 
     Args:
-        input_path (str): JSONL 格式的文件路径。
+        input_path (str): The path to the JSONL file.
 
     Returns:
-        list[dict]: 包含所有记录的列表，每个记录是一个字典。
+        list: A list of dictionaries, where each dictionary represents a JSON object from the file.
     """
-    querys = []
+    lines = []
     with open(input_path, 'r', encoding='utf-8') as file:
         for line in file:
-            querys.append(json.loads(line))
-    return querys
+            lines.append(json.loads(line))
+    return lines
 
 
 def write_jsonl(output_path, data, mode="w"):
     """
-    将数据写入 JSONL 格式的文件。
+    Write a list of JSON objects to a file in JSON Lines format.
 
     Args:
-        output_path (str): 输出文件路径。
-        data (list[dict]): 待写入的数据，每个元素是一个字典。
-        mode (str, optional): 写入模式，默认为"w"。
+        output_path (str): The path to the output file.
+        data (list): The list of JSON objects to write.
+        mode (str, optional): The file mode to open the file in. Defaults to "w".
 
-    Returns:
-        None
+    Raises:
+        FileNotFoundError: If the specified output path does not exist.
+
+    Example:
+        write_jsonl("output.jsonl", [{"name": "John", "age": 30}, {"name": "Jane", "age": 25}])
     """
     with open(output_path, mode, encoding="utf-8") as file:
         for item in data:
             file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
 
-def merge_fields(paths, src_keys, merge_fn, result_key='result'):
-    """Merge a field from multiple jsonl files"""
+def merge_fields(paths, src_keys, merge_fn, result_key=None):
+    """Merge a field from multiple jsonl files
+    
+    Args:
+        paths (list): a list of input jsonl paths
+        src_keys (str | list[str]): 
+    
+    Returns:
+        list: a list of merged json objects
+
+    Raises:
+        ValueError: if the lengths of jsonl files are not the same
+    """
     if isinstance(src_keys, str):
         src_keys = [src_keys] * len(paths)
     results = []
@@ -51,6 +83,11 @@ def merge_fields(paths, src_keys, merge_fn, result_key='result'):
                          for src, src_key in zip(sources, src_keys)]
         merged_field = merge_fn(source_fields)
         merged = sources[0][i]
+
+        # It names the result key the same as the src key by default
+        if not result_key:
+            result_key = src_keys[0]
+
         merged[result_key] = merged_field
         if src_keys[0] != result_key:
             del merged[src_keys[0]]
@@ -58,10 +95,22 @@ def merge_fields(paths, src_keys, merge_fn, result_key='result'):
     return results
 
 
-def update_fields(base_path, update_path, keys_to_update):
-    """Update fields in a jsonl file with values from another jsonl file"""
+def update_fields(base_path, other_path, keys_to_update):
+    """Update fields in a jsonl file with values from another jsonl file
+
+    Args:
+        base_path (str): The file path of the base jsonl file.
+        other_path (str): The file path of the other jsonl file.
+        keys_to_update (list): A list of keys to update in the base jsonl file.
+
+    Raises:
+        ValueError: If the lengths of the jsonl files are not the same.
+
+    Returns:
+        list: The updated jsonl file as a list of dictionaries.
+    """
     base_jsonls = read_jsonl(base_path)
-    update_jsonls = read_jsonl(update_path)
+    update_jsonls = read_jsonl(other_path)
     if len(base_jsonls) != len(update_jsonls):
         raise ValueError(f"Lengths of jsonl files are not the same ({len(base_jsonls) != len(update_jsonls)})")
     for base, update in zip(base_jsonls, update_jsonls):
@@ -69,13 +118,55 @@ def update_fields(base_path, update_path, keys_to_update):
             base[key] = update[key]
     return base_jsonls
 
-def update_fields_unordered(base_path, update_path, primary_key, keys_to_update):
-    """Update fields in a jsonl file with values from another jsonl file"""
+
+def update_fields_unordered(base_path, other_path, primary_key, keys_to_update):
+    """Update fields in a jsonl file with values from another jsonl file
+
+    Args:
+        base_path (str): The file path of the base jsonl file.
+        other_path (str): The file path of the other jsonl file.
+        primary_key (str): The primary key to match records between the two files.
+        keys_to_update (list): A list of keys to update in the base jsonl file.
+
+    Returns:
+        list: A list of dictionaries representing the updated jsonl records.
+    """
     base_jsonls = read_jsonl(base_path)
-    update_jsonls = read_jsonl(update_path)
+    update_jsonls = read_jsonl(other_path)
     update_dict = {jsonl[primary_key]: jsonl for jsonl in update_jsonls}
     for base in base_jsonls:
         update = update_dict[base[primary_key]]
         for key in keys_to_update:
             base[key] = update[key]
     return base_jsonls
+
+
+def excel_to_jsonl(excel_path, output_path):
+    """
+    Convert an Excel file to a JSONL file.
+
+    Args:
+        excel_path (str): The path to the Excel file.
+        output_path (str): The path to save the JSONL file.
+
+    Returns:
+        None
+    """
+    df = pd.read_excel(excel_path)
+    df = df.drop(columns='-')
+    lines = df.to_dict(orient='records')
+    write_jsonl(output_path, lines)
+
+
+def jsonl_to_excel(jsonl_path, output_path):
+    """
+    Converts a JSONL file to an Excel file.
+    Args:
+        jsonl_path (str): The path to the JSONL file.
+        output_path (str): The path to save the Excel file.
+    Returns:
+        None
+    """
+    lines = read_jsonl(jsonl_path)
+    df = pd.DataFrame(lines)
+    df.to_excel(output_path)
