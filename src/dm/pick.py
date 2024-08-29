@@ -33,6 +33,13 @@ def pick(args):
 
 
 def add_pick_arguments(parser):
+    """
+    Add pick arguments to the parser.
+    Args:
+        parser (argparse.ArgumentParser): The argument parser object.
+    Returns:
+        None
+    """
     parser.add_argument("-i", "--input", type=str,
                         required=True, help="The input jsonl file")
     parser.add_argument("-o", "--output", type=str, required=False, default="output.jsonl",

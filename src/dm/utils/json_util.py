@@ -14,8 +14,9 @@ Functions:
     match records.
 - excel_to_jsonl(excel_path, output_path): Converts an Excel file to a JSONL file.
 """
-from itertools import pairwise
 import json
+from datetime import datetime
+from itertools import pairwise
 
 import pandas as pd
 
@@ -127,7 +128,8 @@ def update_fields(base_path, other_path, keys_to_update):
     base_jsonls = read_jsonl(base_path)
     update_jsonls = read_jsonl(other_path)
     if len(base_jsonls) != len(update_jsonls):
-        raise ValueError(f"Lengths of jsonl files are not the same ({len(base_jsonls) != len(update_jsonls)})")
+        raise ValueError("Lengths of jsonl files are not the same "
+                         f"({len(base_jsonls) != len(update_jsonls)})")
     for base, update in zip(base_jsonls, update_jsonls):
         for key in keys_to_update:
             base[key] = update[key]
@@ -154,35 +156,3 @@ def update_fields_unordered(base_path, other_path, primary_key, keys_to_update):
         for key in keys_to_update:
             base[key] = update[key]
     return base_jsonls
-
-
-def excel_to_jsonl(excel_path, output_path):
-    """
-    Convert an Excel file to a JSONL file.
-
-    Args:
-        excel_path (str): The path to the Excel file.
-        output_path (str): The path to save the JSONL file.
-
-    Returns:
-        None
-    """
-    df = pd.read_excel(excel_path)
-    if '-' in df.columns:
-        df = df.drop(columns='-')
-    lines = df.to_dict(orient='records')
-    write_jsonl(output_path, lines)
-
-
-def jsonl_to_excel(jsonl_path, output_path):
-    """
-    Converts a JSONL file to an Excel file.
-    Args:
-        jsonl_path (str): The path to the JSONL file.
-        output_path (str): The path to save the Excel file.
-    Returns:
-        None
-    """
-    lines = read_jsonl(jsonl_path)
-    df = pd.DataFrame(lines)
-    df.to_excel(output_path)

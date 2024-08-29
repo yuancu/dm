@@ -10,6 +10,15 @@ from dm.utils.json_util import read_jsonl, write_jsonl
 
 
 def label(args):
+    """
+    Label the input data with user-defined labels.
+    Args:
+        args (Namespace): The command-line arguments.
+    Returns:
+        None
+    Raises:
+        None
+    """
     lines = read_jsonl(args.input)
     console = Console()
 
