@@ -57,6 +57,21 @@ def write_jsonl(output_path, data, mode="w"):
             file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
 
+def write_json(obj, output_path):
+    """
+    Write a Python object to a JSON file.
+
+    Args:
+        obj: The Python object to be written to JSON.
+        output_path (str): The path to the output JSON file.
+
+    Raises:
+        IOError: If there is an error writing to the file.
+    """
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(obj, f, indent=4, ensure_ascii=False)
+
+
 def merge_fields(paths, src_keys, merge_fn, result_key=None):
     """Merge a field from multiple jsonl files
     
@@ -153,7 +168,8 @@ def excel_to_jsonl(excel_path, output_path):
         None
     """
     df = pd.read_excel(excel_path)
-    df = df.drop(columns='-')
+    if '-' in df.columns:
+        df = df.drop(columns='-')
     lines = df.to_dict(orient='records')
     write_jsonl(output_path, lines)
 
