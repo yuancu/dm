@@ -169,7 +169,9 @@ def add_convert_arguments(parser: argparse.ArgumentParser):
     """
     parser.add_argument("mode", type=str, choices=["excel2jsonl", "excel2csv", "jsonl2excel",
                                                    "csv2jsonl", "jsonl2csv", "md2html"])
-    parser.add_argument("-i", "--input-path", type=str)
-    parser.add_argument("-o", "--output-path", type=str)
+    parser.add_argument("input_path", nargs="?", type=str)
+    parser.add_argument("output_path", nargs="?", type=str)
+    parser.add_argument("-i", "--input-path", dest="input_path", type=str)
+    parser.add_argument("-o", "--output-path", dest="output_path", type=str)
     parser.add_argument("--columns", nargs="+", default=None,
                         help="List of columns to transform. Only effective to md2html")

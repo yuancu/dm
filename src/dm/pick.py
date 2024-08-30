@@ -40,9 +40,9 @@ def add_pick_arguments(parser):
     Returns:
         None
     """
-    parser.add_argument("-i", "--input", type=str,
-                        required=True, help="The input jsonl file")
-    parser.add_argument("-o", "--output", type=str, required=False, default="output.jsonl",
+    parser.add_argument("-i", "--input", type=str, required=True,
+                        help="The input jsonl file")
+    parser.add_argument("-o", "--output", type=str, default="output.jsonl",
                         help="The output jsonl file (default: output.jsonl)")
     parser.add_argument("--start-from", type=int, default=0)
     parser.add_argument("--not-render", action="store_true", help="Do not render markdown")
