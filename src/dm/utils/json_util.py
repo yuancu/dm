@@ -15,10 +15,7 @@ Functions:
 - excel_to_jsonl(excel_path, output_path): Converts an Excel file to a JSONL file.
 """
 import json
-from datetime import datetime
 from itertools import pairwise
-
-import pandas as pd
 
 
 def read_jsonl(input_path):
