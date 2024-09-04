@@ -91,7 +91,7 @@ def markdown_to_html(jsonl_path, output_path, columns=None):
         if columns is None:
             columns = line.keys()
         for col in columns:
-            line[col] = markdown.markdown(str(line[col]))
+            line[col] = markdown.markdown(str(line[col]), extensions=['extra'])
     write_jsonl(output_path, lines)
 
 
