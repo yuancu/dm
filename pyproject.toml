@@ -16,6 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dynamic = ["dependencies"] 
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["requirements.txt"]
