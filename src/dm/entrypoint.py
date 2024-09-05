@@ -19,6 +19,7 @@ import argparse
 from dm.pick import pick, add_pick_arguments
 from dm.label import label, add_label_arguments
 from dm.convert import convert, add_convert_arguments
+from dm.filter import filter_, add_filter_arguments
 
 
 def cli():
@@ -47,6 +48,10 @@ def cli():
     parser_convert = subparsers.add_parser("convert", help="Convert file formats")
     add_convert_arguments(parser_convert)
     parser_convert.set_defaults(func=convert)
+
+    parser_filter = subparsers.add_parser("filter", help="Filter lines by conditions")
+    add_filter_arguments(parser_filter)
+    parser_filter.set_defaults(func=filter_)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
