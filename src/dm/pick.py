@@ -28,7 +28,10 @@ def pick(args):
             user_input = input("Keep this sample? ([y]/n)")
         if user_input.strip().lower() == "n":
             continue
-
+        
+        if args.comment:
+            comment = input("Comment: ")
+            line["comment"] = comment
         write_jsonl(args.output, [line], mode="a")
 
 
@@ -46,10 +49,7 @@ def add_pick_arguments(parser):
                         help="The output jsonl file (default: output.jsonl)")
     parser.add_argument("--start-from", type=int, default=0)
     parser.add_argument("--not-render", action="store_true", help="Do not render markdown")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    add_pick_arguments(parser)
-    args = parser.parse_args()
-    pick(args)
+    parser.add_argument("--comment", action="store_true", help="Add comment to the output jsonl "
+                        "file. Note: the comment will be added to a new key 'comment' in the "
+                        "output jsonl file, which may overwrite the original content with the "
+                        "same key.")
