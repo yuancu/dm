@@ -44,6 +44,13 @@ class DirectoryManager:
     def __getitem__(self, path):
         return DirectoryProxy(self.root, path)
 
+    def __str__(self):
+        return str(self.root)
+
+    def get(self):
+        """Return the root directory path"""
+        return self.root
+
 
 class DirectoryProxy:
     """
@@ -72,6 +79,6 @@ class DirectoryProxy:
     def __str__(self):
         return str(self.full_path)
 
-    def resolve(self):
-        """Return the full path of the directory"""
-        return self.full_path.resolve()
+    def get(self):
+        """Return the path object of the directory"""
+        return self.full_path
