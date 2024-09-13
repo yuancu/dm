@@ -29,29 +29,27 @@ def gsb2int(x):
     """
     Converts a GSB literal to an integer.
     """
-    match x.upper():
-        case 'G':
-            return 1
-        case 'S':
-            return 0
-        case 'B':
-            return -1
-        case _:
-            raise ValueError(f"Got {x.upper()}")
+    x_upper = x.upper()
+    if x_upper == 'G':
+        return 1
+    elif x_upper == 'S':
+        return 0
+    elif x_upper == 'B':
+        return -1
+    else:
+        raise ValueError(f"Got {x.upper()}")
 
 def int2gsb(x):
     """
     Converts an integer to a GSB literal.
     """
-    match x:
-        case 1:
-            return 'G'
-        case 0:
-            return 'S'
-        case -1:
-            return 'B'
-        case _:
-            raise ValueError(f"Got {x}")
+    if x == 1:
+        return 'G'
+    if x == 0:
+        return 'S'
+    if x == -1:
+        return 'B'
+    raise ValueError(f"Got {x}")
 
 def calc_gsb(ref: int | float, val: int | float) -> str:
     """

@@ -140,21 +140,20 @@ def convert(args):
     """
     input_path = args.input_path
     output_path = args.output_path
-    match args.mode:
-        case "excel2jsonl":
-            excel_to_jsonl(input_path, output_path)
-        case "excel2csv":
-            excel_to_csv(input_path, output_path)
-        case "jsonl2excel":
-            jsonl_to_excel(input_path, output_path)
-        case "jsonl2csv":
-            jsonl_to_csv(input_path, output_path)
-        case "csv2jsonl":
-            csv_to_jsonl(input_path, output_path)
-        case "md2html":
-            markdown_to_html(input_path, output_path, args.columns)
-        case _:
-            raise ValueError(f"Unrecognised mode {args.mode}")
+    if args.mode == "excel2jsonl":
+        excel_to_jsonl(input_path, output_path)
+    elif args.mode == "excel2csv":
+        excel_to_csv(input_path, output_path)
+    elif args.mode == "jsonl2excel":
+        jsonl_to_excel(input_path, output_path)
+    elif args.mode == "jsonl2csv":
+        jsonl_to_csv(input_path, output_path)
+    elif args.mode == "csv2jsonl":
+        csv_to_jsonl(input_path, output_path)
+    elif args.mode == "md2html":
+        markdown_to_html(input_path, output_path, args.columns)
+    else:
+        raise ValueError(f"Unrecognised mode {args.mode}")
 
 
 def add_convert_arguments(parser: argparse.ArgumentParser):

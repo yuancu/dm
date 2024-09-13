@@ -18,11 +18,10 @@ def filter_(args):
     """Filter lines by conditions"""
     lines = read_jsonl(args.input_path)
     kept_columns = args.columns
-    match args.mode:
-        case "keep-cols":
-            output_lines = remove_other_columns(lines, kept_columns)
-        case _:
-            raise ValueError(f"Unknown mode: {args.mode}")
+    if args.mode == "keep-cols":
+        output_lines = remove_other_columns(lines, kept_columns)
+    else:
+        raise ValueError(f"Unknown mode: {args.mode}")
     write_jsonl(args.output_path, output_lines)
 
 
