@@ -20,6 +20,7 @@ from dm.pick import pick, add_pick_arguments
 from dm.label import label, add_label_arguments
 from dm.convert import convert, add_convert_arguments
 from dm.filter import filter_, add_filter_arguments
+from dm.dedupe import dedupe_with_args, add_dedupe_arguments
 
 
 def cli():
@@ -52,6 +53,10 @@ def cli():
     parser_filter = subparsers.add_parser("filter", help="Filter lines by conditions")
     add_filter_arguments(parser_filter)
     parser_filter.set_defaults(func=filter_)
+
+    parser_dedupe = subparsers.add_parser("dedupe", help="Deduplicate lines based on a primary key")
+    add_dedupe_arguments(parser_dedupe)
+    parser_dedupe.set_defaults(func=dedupe_with_args)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):

@@ -1,6 +1,7 @@
 import argparse
 from dm.utils.json_util import read_jsonl, write_jsonl
 
+
 def remove_other_columns(lines, kept_columns):
     """
     Remove rest columns from lines (other than kept_columns)
@@ -18,7 +19,7 @@ def filter_(args):
     """Filter lines by conditions"""
     lines = read_jsonl(args.input_path)
     kept_columns = args.columns
-    if args.mode == "keep-cols":
+    if args.mode == "keepcols":
         output_lines = remove_other_columns(lines, kept_columns)
     else:
         raise ValueError(f"Unknown mode: {args.mode}")
@@ -41,4 +42,4 @@ def add_filter_arguments(parser: argparse.ArgumentParser):
     parser.add_argument("-i", "--input-path", dest="input_path", type=str)
     parser.add_argument("-o", "--output-path", dest="output_path", type=str)
     parser.add_argument("--columns", nargs="+", default=None,
-                        help="List of columns to transform. Only effective to keep-cols")
+                        help="List of columns to transform. Only effective to keepcols")
