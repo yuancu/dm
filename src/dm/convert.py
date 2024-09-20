@@ -56,7 +56,7 @@ def jsonl_to_excel(jsonl_path, output_path):
     """
     lines = read_jsonl(jsonl_path)
     df = pd.DataFrame(lines)
-    df.to_excel(output_path)
+    df.to_excel(output_path, engine="xlsxwriter")
 
 
 def excel_to_csv(excel_path, output_path):
