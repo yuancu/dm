@@ -153,3 +153,48 @@ def update_fields_unordered(base_path, other_path, primary_key, keys_to_update):
         for key in keys_to_update:
             base[key] = update[key]
     return base_jsonls
+
+def rename(src_path, dst_path, key_map):
+    """Rename keys in a jsonl file
+    
+    Args:
+        src_path (str): The file path of the source jsonl file.
+        dst_path (str): The file path of the destination jsonl file.
+        key_map (dict): A mapping of source keys to destination keys.
+    
+    Returns:
+        None
+    """
+    src_jsonls = read_jsonl(src_path)
+    dst_jsonls = []
+    for src_json in src_jsonls:
+        dst_json = {key_map.get(key, key): value for key, value in src_json.items()}
+        dst_jsonls.append(dst_json)
+    write_jsonl(dst_path, dst_jsonls)
+
+
+def multi_field_transform(input_path, model_names, transform_fn, param_key_fn_map, dst_key_fn):
+    """
+    Transform multiple fields of a jsonl file with a transform_fn.
+    The source keys are derived from model_names with param_key_fn_map;
+    while the target keys are derived from dst_key_fn(model_name).
+
+    Args:
+        input_path: the path of the file containing the source data
+        model_names: the names of the models
+        transform_fn: the function to transform the source value to the destination value
+        param_key_fn_map: the functions that transform the model name to the param key of the line
+            its key is the param name of the transform function; its value is the function to
+            convert the model names to the corresponding keys in a line of the jsonl.
+        dst_key_fn: the function to get the destination key from the model name
+    
+    Returns:
+        list: the transformed data
+    """
+    lines = read_jsonl(input_path)
+    for line in lines:
+        for name in model_names:
+            params = {param_name: line[param_key_fn(name)]
+                      for param_name, param_key_fn in param_key_fn_map.items()}
+            line[dst_key_fn(name)] = transform_fn(**params)
+    return lines
