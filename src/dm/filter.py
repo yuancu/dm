@@ -19,7 +19,8 @@ def filter_(args):
     """Filter lines by conditions"""
     lines = read_jsonl(args.input_path)
     kept_columns = args.columns
-    if args.mode == "keepcols":
+    mode = args.mode.strip()
+    if mode == "keepcols":
         output_lines = remove_other_columns(lines, kept_columns)
     else:
         raise ValueError(f"Unknown mode: {args.mode}")

@@ -11,12 +11,13 @@ Functions:
 - add_convert_arguments(parser): Add command line arguments for the convert function.
 """
 import argparse
+import json
 from datetime import datetime
 
-import pandas as pd
 import markdown
+import pandas as pd
 
-from dm.utils.json_util import read_jsonl, write_jsonl
+from dm.utils.json_util import read_jsonl, write_json, write_jsonl
 
 
 def _write_dicts_to_file(lines, output_path):
@@ -127,6 +128,38 @@ def jsonl_to_csv(jsonl_path, output_path):
     df.to_csv(output_path)
 
 
+def jsonl_to_json(jsonl_path, output_path):
+    """
+    Convert a JSONL file to a JSON file.
+
+    Args:
+        jsonl_path (str): The path to the JSONL file.
+        output_path (str): The path to save the JSON file.
+
+    Returns:
+        None
+    """
+    lines = read_jsonl(jsonl_path)
+    write_json(lines, output_path)
+
+
+def json_to_jsonl(json_path, output_path):
+    """
+    Converts a JSON file to a JSONL (JSON Lines) file.
+
+    Args:
+        json_path (str): The path to the input JSON file.
+        output_path (str): The path to the output JSONL file.
+
+    Raises:
+        FileNotFoundError: If the input JSON file does not exist.
+        json.JSONDecodeError: If the input file is not a valid JSON.
+    """
+    with open(json_path, 'r', encoding="utf-8") as f:
+        lines = json.load(f)
+    write_jsonl(output_path, lines)
+
+
 def convert(args):
     """
     Convert data from one format to another based on the specified mode.
@@ -152,6 +185,10 @@ def convert(args):
         csv_to_jsonl(input_path, output_path)
     elif args.mode == "md2html":
         markdown_to_html(input_path, output_path, args.columns)
+    elif args.mode == "jsonl2json":
+        jsonl_to_json(input_path, output_path)
+    elif args.mode == "json2jsonl":
+        json_to_jsonl(input_path, output_path)
     else:
         raise ValueError(f"Unrecognised mode {args.mode}")
 
@@ -167,7 +204,8 @@ def add_convert_arguments(parser: argparse.ArgumentParser):
         None
     """
     parser.add_argument("mode", type=str, choices=["excel2jsonl", "excel2csv", "jsonl2excel",
-                                                   "csv2jsonl", "jsonl2csv", "md2html"])
+                                                   "csv2jsonl", "jsonl2csv", "md2html",
+                                                   "jsonl2json", "json2jsonl"])
     parser.add_argument("input_path", nargs="?", type=str)
     parser.add_argument("output_path", nargs="?", type=str)
     parser.add_argument("-i", "--input-path", dest="input_path", type=str)
