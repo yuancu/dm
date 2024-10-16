@@ -22,6 +22,7 @@ from dm.convert import convert, add_convert_arguments
 from dm.filter import filter_, add_filter_arguments
 from dm.dedupe import dedupe_with_args, add_dedupe_arguments
 from dm.rename import rename_with_args, add_rename_args
+from dm.update import update_with_args, add_update_args
 
 
 def cli():
@@ -36,26 +37,32 @@ def cli():
     Options:
         -h, --help     Show this help message and exit.
     """
-    parser = argparse.ArgumentParser(description="dm: A collection of tools for data management")
+    parser = argparse.ArgumentParser(
+        description="dm: A collection of tools for data management")
     subparsers = parser.add_subparsers(dest="dm help")
 
-    parser_pick = subparsers.add_parser("pick", help="Pick samples from a jsonl file")
+    parser_pick = subparsers.add_parser(
+        "pick", help="Pick samples from a jsonl file")
     add_pick_arguments(parser_pick)
     parser_pick.set_defaults(func=pick)
 
-    parser_label = subparsers.add_parser("label", help="Write a label into each line of jsonl file")
+    parser_label = subparsers.add_parser(
+        "label", help="Write a label into each line of jsonl file")
     add_label_arguments(parser_label)
     parser_label.set_defaults(func=label)
 
-    parser_convert = subparsers.add_parser("convert", help="Convert file formats")
+    parser_convert = subparsers.add_parser(
+        "convert", help="Convert file formats")
     add_convert_arguments(parser_convert)
     parser_convert.set_defaults(func=convert)
 
-    parser_filter = subparsers.add_parser("filter", help="Filter lines by conditions")
+    parser_filter = subparsers.add_parser(
+        "filter", help="Filter lines by conditions")
     add_filter_arguments(parser_filter)
     parser_filter.set_defaults(func=filter_)
 
-    parser_dedupe = subparsers.add_parser("dedupe", help="Deduplicate lines based on a primary key")
+    parser_dedupe = subparsers.add_parser(
+        "dedupe", help="Deduplicate lines based on a primary key")
     add_dedupe_arguments(parser_dedupe)
     parser_dedupe.set_defaults(func=dedupe_with_args)
 
@@ -63,6 +70,11 @@ def cli():
                                           " a provided mapping")
     add_rename_args(parser_rename)
     parser_rename.set_defaults(func=rename_with_args)
+
+    parser_update = subparsers.add_parser("update", help="Update JSONL files with data from another"
+                                          " JSONL file based on a specified key")
+    add_update_args(parser_update)
+    parser_update.set_defaults(func=update_with_args)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
