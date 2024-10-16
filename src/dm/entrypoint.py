@@ -21,6 +21,7 @@ from dm.label import label, add_label_arguments
 from dm.convert import convert, add_convert_arguments
 from dm.filter import filter_, add_filter_arguments
 from dm.dedupe import dedupe_with_args, add_dedupe_arguments
+from dm.rename import rename_with_args, add_rename_args
 
 
 def cli():
@@ -57,6 +58,11 @@ def cli():
     parser_dedupe = subparsers.add_parser("dedupe", help="Deduplicate lines based on a primary key")
     add_dedupe_arguments(parser_dedupe)
     parser_dedupe.set_defaults(func=dedupe_with_args)
+
+    parser_rename = subparsers.add_parser("rename", help="Rename keys in a JSONL file based on"
+                                          " a provided mapping")
+    add_rename_args(parser_rename)
+    parser_rename.set_defaults(func=rename_with_args)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
