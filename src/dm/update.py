@@ -4,7 +4,7 @@ from another JSONL file based on a specified key.
 """
 import logging
 
-from dm.utils.json_util import read_jsonl, update_fields_unordered, write_jsonl
+from dm.utils.json_util import read_jsonl, _update_fields_unordered, write_jsonl
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,8 @@ def update_with_args(args):
     if len(other_lines) == 0:
         logger.error("The other file is empty")
         return
-    lines = read_jsonl(args.input)
-    if len(lines) == 0:
+    base_lines = read_jsonl(args.input)
+    if len(base_lines) == 0:
         logger.warning("The input file is empty")
         return
 
@@ -41,10 +41,18 @@ def update_with_args(args):
     elif args.overwrite:
         keys_to_update = other_lines[0].keys()
     else:
-        keys_to_update = set(other_lines[0].keys()) - set(lines[0].keys())
-    updated_lines = update_fields_unordered(
-        base_path=args.input,
-        other_path=args.other,
+        keys_to_update = set(other_lines[0].keys()) - set(base_lines[0].keys())
+
+    if args.mode == "inner":
+        base_primary_keys = {line[args.key] for line in base_lines}
+        other_primary_keys = {line[args.key] for line in other_lines}
+        intersection_keys = base_primary_keys & other_primary_keys
+        base_lines = [line for line in base_lines if line[args.key] in intersection_keys]
+        other_lines = [line for line in other_lines if line[args.key] in intersection_keys]
+
+    updated_lines = _update_fields_unordered(
+        base_jsonl=base_lines,
+        other_jsonl=other_lines,
         primary_key=args.key,
         keys_to_update=keys_to_update)
     write_jsonl(args.output, updated_lines)
@@ -77,7 +85,7 @@ def add_update_args(parser):
                         help="The key to join the two jsonl files")
     parser.add_argument("--overwrite", action="store_true",
                         help="Whether to overwrite the original data with the new data")
-    parser.add_argument("--mode", type=str, choices=["left", "right", "inner", "outer"],
-                        default="left", help="The join mode (Not implemented yet)")
+    parser.add_argument("--mode", type=str, choices=["left", "inner"],
+                        default="left", help="The join mode (default: left)")
     parser.add_argument("--columns", nargs="+", default=None,
                         help="List of columns to update")

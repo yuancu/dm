@@ -16,6 +16,9 @@ Functions:
 """
 import json
 from itertools import pairwise
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def read_jsonl(input_path):
@@ -72,11 +75,11 @@ def write_json(obj, output_path):
 
 def merge_fields(paths, src_keys, merge_fn, result_key=None):
     """Merge a field from multiple jsonl files
-    
+
     Args:
         paths (list): a list of input jsonl paths
         src_keys (str | list[str]): 
-    
+
     Returns:
         list: a list of merged json objects
 
@@ -89,7 +92,8 @@ def merge_fields(paths, src_keys, merge_fn, result_key=None):
     sources = [read_jsonl(path) for path in paths]
     for a, b in pairwise(sources):
         if len(a) != len(b):
-            raise ValueError(f"Lengths of jsonl files are not the same ({len(a)} != {len(b)})")
+            raise ValueError(
+                f"Lengths of jsonl files are not the same ({len(a)} != {len(b)})")
     length = len(sources[0])
     for i in range(length):
         source_fields = [src[i][src_key]
@@ -133,6 +137,29 @@ def update_fields(base_path, other_path, keys_to_update):
     return base_jsonls
 
 
+def _update_fields_unordered(base_jsonl, other_jsonl, primary_key, keys_to_update):
+    """Update fields in a jsonl file with values from another jsonl file
+
+    Args:
+        base_path (str): The file path of the base jsonl file.
+        other_path (str): The file path of the other jsonl file.
+        primary_key (str): The primary key to match records between the two files.
+        keys_to_update (list): A list of keys to update in the base jsonl file.
+
+    Returns:
+        list: A list of dictionaries representing the updated jsonl records.
+    """
+    update_dict = {jsonl[primary_key]: jsonl for jsonl in other_jsonl}
+    for base in base_jsonl:
+        if base[primary_key] not in update_dict:
+            logger.warning("Primary key %s not found in other file: %s. Skipping...",
+                           primary_key, base[primary_key])
+            continue
+        update = update_dict[base[primary_key]]
+        for key in keys_to_update:
+            base[key] = update[key]
+    return base_jsonl
+
 def update_fields_unordered(base_path, other_path, primary_key, keys_to_update):
     """Update fields in a jsonl file with values from another jsonl file
 
@@ -147,28 +174,25 @@ def update_fields_unordered(base_path, other_path, primary_key, keys_to_update):
     """
     base_jsonls = read_jsonl(base_path)
     update_jsonls = read_jsonl(other_path)
-    update_dict = {jsonl[primary_key]: jsonl for jsonl in update_jsonls}
-    for base in base_jsonls:
-        update = update_dict[base[primary_key]]
-        for key in keys_to_update:
-            base[key] = update[key]
-    return base_jsonls
+    return _update_fields_unordered(base_jsonls, update_jsonls, primary_key, keys_to_update)
+
 
 def rename(src_path, dst_path, key_map):
     """Rename keys in a jsonl file
-    
+
     Args:
         src_path (str): The file path of the source jsonl file.
         dst_path (str): The file path of the destination jsonl file.
         key_map (dict): A mapping of source keys to destination keys.
-    
+
     Returns:
         None
     """
     src_jsonls = read_jsonl(src_path)
     dst_jsonls = []
     for src_json in src_jsonls:
-        dst_json = {key_map.get(key, key): value for key, value in src_json.items()}
+        dst_json = {key_map.get(key, key): value for key,
+                    value in src_json.items()}
         dst_jsonls.append(dst_json)
     write_jsonl(dst_path, dst_jsonls)
 
@@ -187,7 +211,7 @@ def multi_field_transform(input_path, model_names, transform_fn, param_key_fn_ma
             its key is the param name of the transform function; its value is the function to
             convert the model names to the corresponding keys in a line of the jsonl.
         dst_key_fn: the function to get the destination key from the model name
-    
+
     Returns:
         list: the transformed data
     """
