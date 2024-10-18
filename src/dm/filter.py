@@ -14,14 +14,22 @@ def remove_other_columns(lines, kept_columns):
         output_lines.append(output_line)
     return output_lines
 
+def remove_columns(lines, dropped_columns):
+    output_lines = []
+    for line in lines:
+        output_line = {k: v for k, v in line.items() if k not in dropped_columns}
+        output_lines.append(output_line)
+    return output_lines
 
 def filter_(args):
     """Filter lines by conditions"""
     lines = read_jsonl(args.input_path)
-    kept_columns = args.columns
+    columns = args.columns
     mode = args.mode.strip()
     if mode == "keepcols":
-        output_lines = remove_other_columns(lines, kept_columns)
+        output_lines = remove_other_columns(lines, columns)
+    elif mode == "dropcols":
+        output_lines = remove_columns(lines, columns)
     else:
         raise ValueError(f"Unknown mode: {args.mode}")
     write_jsonl(args.output_path, output_lines)
@@ -37,7 +45,7 @@ def add_filter_arguments(parser: argparse.ArgumentParser):
     Returns:
         None
     """
-    parser.add_argument("mode", type=str, choices=["keepcols"])
+    parser.add_argument("mode", type=str, choices=["keepcols", "dropcols"])
     parser.add_argument("input_path", nargs="?", type=str)
     parser.add_argument("output_path", nargs="?", type=str)
     parser.add_argument("-i", "--input-path", dest="input_path", type=str)
